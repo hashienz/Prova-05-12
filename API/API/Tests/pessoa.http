@@ -11,3 +11,17 @@ Content-Type: application/json
 
 ### Listar Pessoas
 GET http://localhost:5000/api/pessoa/listar
+
+
+### Alterar
+PATCH    http://localhost:5000/api/pessoa/alterar/f9c9847e-69bb-4456-b298-81fb41b52c80
+Content-Type: application/json
+
+{
+  "altura": 1.80,
+  "peso": 70
+}
+
+### Filtrar
+
+PUT http://localhost:5000/api/pessoa/filtrar/normal

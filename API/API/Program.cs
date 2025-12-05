@@ -29,12 +29,6 @@ app.MapGet("/api/pessoa/listar", ([FromServices] AppDataContext ctx) =>
     return Results.NotFound("Nenhuma pessoa encontrada");
 });
 
-// app.MapPost("/api/pessoa/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
-// {
-//     ctx.Pessoas.Add(pessoa);
-//     ctx.SaveChanges();
-//     return Results.Created("", pessoa);
-// });
 // POST: Cadastrar
 app.MapPost("/api/pessoa/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
 {
@@ -53,27 +47,40 @@ app.MapPost("/api/pessoa/cadastrar", ([FromServices] AppDataContext ctx, [FromBo
         if (pessoa.Imc > 40)
         pessoa.Classificacao = "Obesidade  III";
 
-    // 3. SALVAR
-
     ctx.Pessoas.Add(pessoa);
     ctx.SaveChanges();
     return Results.Created("", pessoa);
 });
 
-//PUT : Filtrar
 
-
-
-// PATCH: Alterar
-// Não precisamos receber nada no corpo, só o ID na URL
-app.MapPatch("/api/pessoas/alterar/{id}", ([FromServices] AppDataContext ctx, [FromRoute] string id) =>
+app.MapPut("/api/pessoa/filtrar/{classificacao}", ([FromServices] AppDataContext ctx, [FromRoute] string id, [FromBody] Pessoa pessoaAtualizada) =>
 {
-    Pessoa? pessoa = ctx.Pessoas.Find(id);
+    var pessoa = ctx.Pessoas.Find(id);
 
     if (pessoa is null)
     {
         return Results.NotFound("Pessoa não encontrada");
     }
+
+
+    pessoa.Nome = pessoaAtualizada.Nome;
+    pessoa.Altura = pessoaAtualizada.Altura;
+    pessoa.Peso = pessoaAtualizada.Peso;
+
+    pessoa.Imc = pessoa.Peso / (pessoa.Altura * pessoa.Altura);
+    if (pessoa.Imc < 18.5)
+        pessoa.Classificacao = "Magreza";
+    else if (pessoa.Imc >= 18.5 && pessoa.Imc < 24.9)
+        pessoa.Classificacao = "Normal";
+    else if (pessoa.Imc >= 25 && pessoa.Imc <= 29.9)
+        pessoa.Classificacao = "Sobrepeso";
+    else if (pessoa.Imc >= 30 && pessoa.Imc <= 34.9)
+        pessoa.Classificacao = "Obesidade I";
+    else if (pessoa.Imc >= 35 && pessoa.Imc <= 39.9)
+        pessoa.Classificacao = "Obesidade II";
+    else if (pessoa.Imc >= 40)
+        pessoa.Classificacao = "Obesidade III";
+
 
     ctx.Pessoas.Update(pessoa);
     ctx.SaveChanges();
@@ -81,57 +88,42 @@ app.MapPatch("/api/pessoas/alterar/{id}", ([FromServices] AppDataContext ctx, [F
 });
 
 
-// // --- ENDPOINT DE CATEGORIA (Para preencher o <select>) ---
-// app.MapPost("/api/categoria/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Categoria categoria) =>
-// {
-//     ctx.Categorias.Add(categoria);
-//     ctx.SaveChanges();
-//     return Results.Created("", categoria);
-// });
+// PATCH: Alterar
+app.MapPatch("/api/pessoa/alterar/{id}", ([FromServices] AppDataContext ctx, [FromRoute] string id, [FromBody] Pessoa pessoaAtualizada) =>
+{
+    var pessoa = ctx.Pessoas.Find(id);
 
-// app.MapGet("/api/categoria/listar", ([FromServices] AppDataContext ctx) =>
-// {
-//     return Results.Ok(ctx.Categorias.ToList());
-// });
+    if (pessoa is null)
+    {
+        return Results.NotFound("Pessoa não encontrada");
+    }
 
+    if (pessoaAtualizada.Nome != null)
+        pessoa.Nome = pessoaAtualizada.Nome;
+    if (pessoaAtualizada.Altura != 0)
+        pessoa.Altura = pessoaAtualizada.Altura;
+    if (pessoaAtualizada.Peso != 0)
+        pessoa.Peso = pessoaAtualizada.Peso;
 
+    pessoa.Imc = pessoa.Peso / (pessoa.Altura * pessoa.Altura);
+    if (pessoa.Imc < 18.5)
+        pessoa.Classificacao = "Magreza";
+    else if (pessoa.Imc >= 18.5 && pessoa.Imc < 24.9)
+        pessoa.Classificacao = "Normal";
+    else if (pessoa.Imc >= 25 && pessoa.Imc <= 29.9)
+        pessoa.Classificacao = "Sobrepeso";
+    else if (pessoa.Imc >= 30 && pessoa.Imc <= 34.9)
+        pessoa.Classificacao = "Obesidade I";
+    else if (pessoa.Imc >= 35 && pessoa.Imc <= 39.9)
+        pessoa.Classificacao = "Obesidade II";
+    else if (pessoa.Imc >= 40)
+        pessoa.Classificacao = "Obesidade III";
 
+    ctx.Pessoas.Update(pessoa);
+    ctx.SaveChanges();
+    return Results.Ok(pessoa);
+});
 
-// // GET: Listar Todas
-// app.MapGet("/api/folha/listar", ([FromServices] AppDataContext ctx) =>
-// {
-//     return Results.Ok(ctx.Folhas.ToList());
-// });
-
-// // GET: Buscar Específica (Busca Composta)
-// app.MapGet("/api/folha/buscar/{cpf}/{mes}/{ano}", ([FromServices] AppDataContext ctx, 
-//     string cpf, int mes, int ano) =>
-// {
-//     var folha = ctx.Folhas.FirstOrDefault(f => f.Cpf == cpf && f.Mes == mes && f.Ano == ano);
-//     if (folha is null) return Results.NotFound();
-//     return Results.Ok(folha);
-// });
 app.UseCors("Acesso Total");
 
 app.Run();
-
-
-/* =============================================================================
-
-1. SE PEDIR ORDENAÇÃO (Ex: Listar produtos do mais caro para o mais barato):
-   return Results.Ok(ctx.Produtos.OrderByDescending(p => p.Preco).ToList());
-
-2. SE PEDIR BUSCA POR PARTE DO NOME (Ex: Buscar quem tem "Silva" no nome):
-   app.MapGet("/api/buscar/{nome}", (AppDataContext ctx, string nome) => {
-       return Results.Ok(ctx.Tabela.Where(x => x.Nome.Contains(nome)).ToList());
-   });
-
-3. SE PEDIR SOMA TOTAL (Ex: Total de todos os salários):
-   app.MapGet("/api/total", (AppDataContext ctx) => {
-       double total = ctx.Folhas.Sum(f => f.SalarioLiquido);
-       return Results.Ok(total);
-   });
-   
-4. SE PEDIR MÉDIA:
-   double media = ctx.Folhas.Average(f => f.SalarioLiquido);
-*/
