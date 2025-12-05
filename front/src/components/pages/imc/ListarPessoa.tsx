@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Pessoa } from "../../../models/Pessoa";
+import { useNavigate } from "react-router-dom";
 
 function ListarPessoa() {
   const [pessoas, setPessoa] = useState<Pessoa[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     carregarPessoas();
@@ -48,12 +50,15 @@ function ListarPessoa() {
             <tr key={pessoa.pessoaId}>
               <td>{pessoa.pessoaId}</td>
               <td>{pessoa.nome}</td>
-              { }
               <td>{pessoa.altura}</td>
               <td>{pessoa.peso}</td>
               <td>{pessoa.classificacao}</td>
               <td>{pessoa.dataCriacao}</td>
-
+              <td>
+                <button onClick={() => navigate(`/pages/imc/alterar/${pessoa.pessoaId}`)}>
+                  Alterar
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
