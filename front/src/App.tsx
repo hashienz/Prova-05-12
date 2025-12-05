@@ -12,10 +12,10 @@ function App() {
         <nav>
           <ul>
             {/* SEÇÃO TAREFAS */}
-            <li> <Link to="/">Listar Tarefas</Link> </li>
+            <li> <Link to="/">Listar Pessoas</Link> </li>
             <li> <Link to="/pages/tarefa/cadastrar">Cadastrar Pessoa</Link> </li>
             
-            {/* SEÇÃO FOLHA (Separador visual) */}
+            { }
             <li style={{ marginLeft: "20px", listStyle: "none" }}>|</li>
             
           </ul>

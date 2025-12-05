@@ -1,32 +1,33 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Pessoa } from "../../../models/Pessoa";
 
 
-function AlterarTarefa(){    
+function AlterarPessoa(){    
     const { id } = useParams();
-    const [titulo, setTitulo] = useState("");
+    const [nome, setNome] = useState("");
 
 useEffect(() => {
-    buscarTarefaAPI()
+    buscarPessoaAPI()
  }, []);
 
- async function buscarTarefaAPI(){
+ async function buscarPessoaAPI(){
     try {
-        const resposta = await axios.patch(`/api/tarefas/alterar/${id}`);
-        setTitulo(resposta.data.titulo);
+        const resposta = await axios.patch(`/api/pessoa/alterar/${id}`);
+        setNome(resposta.data.nome);
     } catch (error) {
-        console.log("Erro ao buscar tarefa: " + error)
+        console.log("Erro ao buscar o nome: " + error)
         
     }
  }
 async function submeterTarefaAPI(){
        try {
-      const tarefa: Tarefa = {
-        titulo,
-        categoriaId: 0
+      const pessoa: Pessoa = {
+        nome,
+        pessoaId: " "
       };
-      const resposta = await axios.patch(`http://localhost:5000/api/tarefa/alterar/${id}`, tarefa);            
+      const resposta = await axios.patch(`http://localhost:5000/api/pessoa/alterar/${id}`, pessoa);            
     //    navigate("/")
     console.log(resposta);
     } catch (error : any) {
@@ -36,7 +37,7 @@ async function submeterTarefaAPI(){
     } 
 
     }
- async function enviarTarefa(e : any){
+ async function enviarPessoa(e : any){
     e.preventDefault();
     submeterTarefaAPI();
  }
@@ -44,11 +45,11 @@ async function submeterTarefaAPI(){
    return (
     <div>
       <h1>Alterar Tarefa</h1>
-      <form onSubmit={enviarTarefa}>
+      <form onSubmit={enviarPessoa}>
         <div>
-          <label>Titulo:</label>
+          <label>Nome:</label>
           <input type="text"
-           value={titulo} onChange={(e: any) => setTitulo(e.target.value)} />
+           value={nome} onChange={(e: any) => setNome(e.target.value)} />
         </div>
         <div>
           <button type="submit">Alterar</button>
@@ -58,4 +59,4 @@ async function submeterTarefaAPI(){
   );
 }
 
-export default AlterarTarefa;
+export default AlterarPessoa;

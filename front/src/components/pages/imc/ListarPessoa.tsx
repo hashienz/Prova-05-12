@@ -38,9 +38,9 @@ function ListarPessoa() {
           <tr>
             <th>ID</th>
             <th>Nome</th>
+            <th>Altura</th>
+            <th>Peso</th>
             <th>Classificacao</th>
-            {/* <th>Status</th>
-            <th>Ação</th> */}
           </tr>
         </thead>
         <tbody>
@@ -48,13 +48,12 @@ function ListarPessoa() {
             <tr key={pessoa.pessoaId}>
               <td>{pessoa.pessoaId}</td>
               <td>{pessoa.nome}</td>
-              {/* Mostra o nome da categoria se ela vier preenchida, senão mostra o ID */}
+              { }
+              <td>{pessoa.altura}</td>
+              <td>{pessoa.peso}</td>
               <td>{pessoa.classificacao}</td>
-              <td>
-                <button onClick={() => alterarPessoa(pessoa.pessoaId!)}>
-                  Avançar Status
-                </button>
-              </td>
+              <td>{pessoa.dataCriacao}</td>
+
             </tr>
           ))}
         </tbody>
