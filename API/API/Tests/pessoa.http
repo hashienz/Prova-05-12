@@ -1,4 +1,5 @@
-POST http://localhost:5000/api/pessoas/cadastrar
+### Cadastrar
+POST http://localhost:5000/api/pessoa/cadastrar
 Content-Type: application/json
 
 
@@ -7,3 +8,6 @@ Content-Type: application/json
 	"altura": 1.70,
 	"peso": 65
 }
+
+### Listar Pessoas
+GET http://localhost:5000/api/pessoa/listar

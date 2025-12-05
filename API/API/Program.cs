@@ -20,28 +20,55 @@ app.MapGet("/", () => "Enzo Ricardo Hashimoto");
 // --- ENDPOINTS DE PESSOA ---
 
 // GET: Listar todas
-app.MapGet("/api/pessoas/listar", ([FromServices] AppDataContext ctx) =>
+app.MapGet("/api/pessoa/listar", ([FromServices] AppDataContext ctx) =>
 {
     if (ctx.Pessoas.Any())
     {
-        return Results.Ok(ctx.Pessoas);
+        return Results.Ok(ctx.Pessoas.ToList());
     }
     return Results.NotFound("Nenhuma pessoa encontrada");
 });
 
-// // POST: Cadastrar
-// app.MapPost("/api/pessoas/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
+// app.MapPost("/api/pessoa/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
 // {
-//     ctx.Pessoa.Add(pessoa);
+//     ctx.Pessoas.Add(pessoa);
 //     ctx.SaveChanges();
 //     return Results.Created("", pessoa);
 // });
-
-// PATCH: Alterar Status 
-// Não precisamos receber nada no corpo, só o ID na URL
-app.MapPatch("/api/pessoas/alterar/{id}", ([FromServices] AppDataContext ctx, [FromRoute] string PessoaId) =>
+// POST: Cadastrar
+app.MapPost("/api/pessoa/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
 {
-    Pessoa? pessoa = ctx.Pessoas.Find(PessoaId);
+    pessoa.Imc = pessoa.Peso / (pessoa.Altura * pessoa.Altura );
+    
+    if (pessoa.Imc < 18.5)
+        pessoa.Classificacao = "Magreza";
+        if (pessoa.Imc > 18.5 && pessoa.Imc < 24.9)
+        pessoa.Classificacao = "Normal";
+        if (pessoa.Imc >= 25 && pessoa.Imc <= 29.9)
+        pessoa.Classificacao = "Sobrepeso";
+        if (pessoa.Imc >= 30 && pessoa.Imc <=34.9)
+        pessoa.Classificacao = "Obesidade I";
+        if (pessoa.Imc >= 35 && pessoa.Imc <=39.9)
+        pessoa.Classificacao = "Obesidade II";
+        if (pessoa.Imc > 40)
+        pessoa.Classificacao = "Obesidade  III";
+
+    // 3. SALVAR
+
+    ctx.Pessoas.Add(pessoa);
+    ctx.SaveChanges();
+    return Results.Created("", pessoa);
+});
+
+//PUT : Filtrar
+
+
+
+// PATCH: Alterar
+// Não precisamos receber nada no corpo, só o ID na URL
+app.MapPatch("/api/pessoas/alterar/{id}", ([FromServices] AppDataContext ctx, [FromRoute] string id) =>
+{
+    Pessoa? pessoa = ctx.Pessoas.Find(id);
 
     if (pessoa is null)
     {
@@ -69,30 +96,6 @@ app.MapPatch("/api/pessoas/alterar/{id}", ([FromServices] AppDataContext ctx, [F
 
 
 
-// POST:
-app.MapPost("/api/pessoa/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
-{
-    pessoa.Imc = pessoa.Peso / (pessoa.Altura * pessoa.Altura );
-    
-    if (pessoa.Imc < 18.5)
-        pessoa.Classificacao = "Magreza";
-        if (pessoa.Imc > 18.5 && pessoa.Imc < 24.9)
-        pessoa.Classificacao = "Normal";
-        if (pessoa.Imc >= 25 && pessoa.Imc <= 29.9)
-        pessoa.Classificacao = "Sobrepeso";
-        if (pessoa.Imc < 18.5)
-        pessoa.Classificacao = "Obesidade I";
-        if (pessoa.Imc < 18.5)
-        pessoa.Classificacao = "Obesidade II";
-        if (pessoa.Imc > 40)
-        pessoa.Classificacao = "Obesidade  III";
-
-    
-    // 3. SALVAR
-    ctx.Pessoas.Add(pessoa);
-    ctx.SaveChanges();
-    return Results.Created("", pessoa);
-});
 
 // // GET: Listar Todas
 // app.MapGet("/api/folha/listar", ([FromServices] AppDataContext ctx) =>
