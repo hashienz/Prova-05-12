@@ -17,142 +17,97 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Enzo Ricardo Hashimoto");
 
-// --- ENDPOINTS DE TAREFA ---
+// --- ENDPOINTS DE PESSOA ---
 
 // GET: Listar todas
-app.MapGet("/api/tarefas/listar", ([FromServices] AppDataContext ctx) =>
+app.MapGet("/api/pessoas/listar", ([FromServices] AppDataContext ctx) =>
 {
-    if (ctx.Tarefas.Any())
+    if (ctx.Pessoas.Any())
     {
-        return Results.Ok(ctx.Tarefas.Include(t => t.Categoria).ToList());
+        return Results.Ok(ctx.Pessoas);
     }
-    return Results.NotFound("Nenhuma tarefa encontrada");
+    return Results.NotFound("Nenhuma pessoa encontrada");
 });
 
-// POST: Cadastrar
-app.MapPost("/api/tarefas/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Tarefa tarefa) =>
-{
-    // FORÇAR O STATUS INICIAL
-    tarefa.Status = "Não iniciada";
-    
-    ctx.Tarefas.Add(tarefa);
-    ctx.SaveChanges();
-    return Results.Created("", tarefa);
-});
+// // POST: Cadastrar
+// app.MapPost("/api/pessoas/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
+// {
+//     ctx.Pessoa.Add(pessoa);
+//     ctx.SaveChanges();
+//     return Results.Created("", pessoa);
+// });
 
-// PATCH: Alterar Status (A Lógica de Ouro da Prova)
+// PATCH: Alterar Status 
 // Não precisamos receber nada no corpo, só o ID na URL
-app.MapPatch("/api/tarefas/alterar/{id}", ([FromServices] AppDataContext ctx, [FromRoute] string id) =>
+app.MapPatch("/api/pessoas/alterar/{id}", ([FromServices] AppDataContext ctx, [FromRoute] string PessoaId) =>
 {
-    Tarefa? tarefa = ctx.Tarefas.Find(id);
+    Pessoa? pessoa = ctx.Pessoas.Find(PessoaId);
 
-    if (tarefa is null)
+    if (pessoa is null)
     {
-        return Results.NotFound("Tarefa não encontrada");
+        return Results.NotFound("Pessoa não encontrada");
     }
 
-    // LÓGICA DE PROGRESSÃO DE STATUS
-    // Se for "Chamado", mude para: "Aberto" -> "Em atendimento" -> "Resolvido"
-    switch (tarefa.Status)
-    {
-        case "Não iniciada":
-            tarefa.Status = "Em andamento";
-            break;
-        case "Em andamento":
-            tarefa.Status = "Concluída";
-            break;
-        case "Concluída":
-            // Já está no final, não faz nada
-            break;
-        default:
-            tarefa.Status = "Não iniciada"; // Fallback caso venha nulo
-            break;
-    }
-
-    ctx.Tarefas.Update(tarefa);
+    ctx.Pessoas.Update(pessoa);
     ctx.SaveChanges();
-    return Results.Ok(tarefa);
-});
-
-// GET: Não Concluídas
-app.MapGet("/api/tarefas/naoconcluidas", ([FromServices] AppDataContext ctx) =>
-{
-    var tarefas = ctx.Tarefas
-                     .Include(t => t.Categoria)
-                     .Where(t => t.Status == "Não iniciada" || t.Status == "Em andamento")
-                     .ToList();
-    return Results.Ok(tarefas);
-});
-
-// GET: Concluídas (Apenas Concluída)
-app.MapGet("/api/tarefas/concluidas", ([FromServices] AppDataContext ctx) =>
-{
-    var tarefas = ctx.Tarefas
-                     .Include(t => t.Categoria)
-                     .Where(t => t.Status == "Concluída")
-                     .ToList();
-    return Results.Ok(tarefas);
-});
-// --- ENDPOINT DE CATEGORIA (Para preencher o <select>) ---
-app.MapPost("/api/categoria/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Categoria categoria) =>
-{
-    ctx.Categorias.Add(categoria);
-    ctx.SaveChanges();
-    return Results.Created("", categoria);
-});
-
-app.MapGet("/api/categoria/listar", ([FromServices] AppDataContext ctx) =>
-{
-    return Results.Ok(ctx.Categorias.ToList());
+    return Results.Ok(pessoa);
 });
 
 
-// --- ENDPOINTS DE FOLHA DE PAGAMENTO ---
+// // --- ENDPOINT DE CATEGORIA (Para preencher o <select>) ---
+// app.MapPost("/api/categoria/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Categoria categoria) =>
+// {
+//     ctx.Categorias.Add(categoria);
+//     ctx.SaveChanges();
+//     return Results.Created("", categoria);
+// });
 
-// POST: Cadastrar com Cálculos e Validação
-app.MapPost("/api/folha/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Folha folha) =>
+// app.MapGet("/api/categoria/listar", ([FromServices] AppDataContext ctx) =>
+// {
+//     return Results.Ok(ctx.Categorias.ToList());
+// });
+
+
+
+// POST:
+app.MapPost("/api/pessoa/cadastrar", ([FromServices] AppDataContext ctx, [FromBody] Pessoa pessoa) =>
 {
-    // 1. VALIDAÇÃO DE DUPLICIDADE (O CPF já tem folha nesse mês/ano?)
-    bool existe = ctx.Folhas.Any(f => f.Cpf == folha.Cpf && f.Mes == folha.Mes && f.Ano == folha.Ano);
-    if (existe)
-    {
-        return Results.BadRequest("Já existe uma folha cadastrada para este CPF neste período!");
-    }
+    pessoa.Imc = pessoa.Peso / (pessoa.Altura * pessoa.Altura );
+    
+    if (pessoa.Imc < 18.5)
+        pessoa.Classificacao = "Magreza";
+        if (pessoa.Imc > 18.5 && pessoa.Imc < 24.9)
+        pessoa.Classificacao = "Normal";
+        if (pessoa.Imc >= 25 && pessoa.Imc <= 29.9)
+        pessoa.Classificacao = "Sobrepeso";
+        if (pessoa.Imc < 18.5)
+        pessoa.Classificacao = "Obesidade I";
+        if (pessoa.Imc < 18.5)
+        pessoa.Classificacao = "Obesidade II";
+        if (pessoa.Imc > 40)
+        pessoa.Classificacao = "Obesidade  III";
 
-    // 2. CÁLCULOS MATEMÁTICOS (Regra de Negócio)
-    folha.SalarioBruto = folha.HorasTrabalhadas * folha.ValorHora;
-
-    // Cálculo simples de IR (Exemplo: 20% se ganhar mais de 2000)
-    if (folha.SalarioBruto > 2000)
-        folha.ImpostoRenda = folha.SalarioBruto * 0.20;
-    else
-        folha.ImpostoRenda = 0;
-
-    // Cálculo simples de INSS (Exemplo fixo de 8%)
-    folha.Inss = folha.SalarioBruto * 0.08;
-
-    folha.SalarioLiquido = folha.SalarioBruto - folha.ImpostoRenda - folha.Inss;
-
+    
     // 3. SALVAR
-    ctx.Folhas.Add(folha);
+    ctx.Pessoas.Add(pessoa);
     ctx.SaveChanges();
-    return Results.Created("", folha);
+    return Results.Created("", pessoa);
 });
 
-// GET: Listar Todas
-app.MapGet("/api/folha/listar", ([FromServices] AppDataContext ctx) =>
-{
-    return Results.Ok(ctx.Folhas.ToList());
-});
+// // GET: Listar Todas
+// app.MapGet("/api/folha/listar", ([FromServices] AppDataContext ctx) =>
+// {
+//     return Results.Ok(ctx.Folhas.ToList());
+// });
 
-// GET: Buscar Específica (Busca Composta)
-app.MapGet("/api/folha/buscar/{cpf}/{mes}/{ano}", ([FromServices] AppDataContext ctx, 
-    string cpf, int mes, int ano) =>
-{
-    var folha = ctx.Folhas.FirstOrDefault(f => f.Cpf == cpf && f.Mes == mes && f.Ano == ano);
-    if (folha is null) return Results.NotFound();
-    return Results.Ok(folha);
-});
+// // GET: Buscar Específica (Busca Composta)
+// app.MapGet("/api/folha/buscar/{cpf}/{mes}/{ano}", ([FromServices] AppDataContext ctx, 
+//     string cpf, int mes, int ano) =>
+// {
+//     var folha = ctx.Folhas.FirstOrDefault(f => f.Cpf == cpf && f.Mes == mes && f.Ano == ano);
+//     if (folha is null) return Results.NotFound();
+//     return Results.Ok(folha);
+// });
 app.UseCors("Acesso Total");
 
 app.Run();

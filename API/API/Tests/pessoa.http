@@ -1,0 +1,9 @@
+POST http://localhost:5000/api/pessoas/cadastrar
+Content-Type: application/json
+
+
+{
+	"nome": "Ana Souza",
+	"altura": 1.70,
+	"peso": 65
+}

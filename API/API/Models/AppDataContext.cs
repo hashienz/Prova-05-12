@@ -9,9 +9,7 @@ public class AppDataContext : DbContext
     {
     }
 
-    public DbSet<Tarefa> Tarefas { get; set; }
-    public DbSet<Categoria> Categorias { get; set; }
-    public DbSet<Folha> Folhas { get; set; }
+    public DbSet<Pessoa> Pessoas {get; set;}
 
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -25,33 +23,27 @@ public class AppDataContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
-        modelBuilder.Entity<Categoria>().HasData(
-            new Categoria { CategoriaId = 1, Nome = "Trabalho", CriadoEm = DateTime.Now },
-            new Categoria { CategoriaId = 2, Nome = "Estudos", CriadoEm = DateTime.Now },
-            new Categoria { CategoriaId = 3, Nome = "Lazer", CriadoEm = DateTime.Now }
+        modelBuilder.Entity<Pessoa>().HasData(
+            new Pessoa { Nome = "teste", DataCriacao = DateTime.Now },
+            new Pessoa { Nome = "enzo", DataCriacao = DateTime.Now },
+            new Pessoa { Nome = "fulano", DataCriacao = DateTime.Now }
         );
 
-        modelBuilder.Entity<Tarefa>().HasData(
-            new Tarefa { 
-                TarefaId = "6a8b3e4d-5e4e-4f7e-bdc9-9181e456ad0e", 
-                Titulo = "Concluir relatório", 
-                CriadoEm = DateTime.Now.AddDays(7), 
-                Status = "Não iniciada",
-                CategoriaId = 1 
+        modelBuilder.Entity<Pessoa>().HasData(
+            new Pessoa { 
+                PessoaId = "6a8b3e4d-5e4e-4f7e-bdc9-9181e456ad0e", 
+                Nome = "teste", 
+                DataCriacao = DateTime.Now.AddDays(7)
             },
-            new Tarefa { 
-                TarefaId = "2f1b7dc1-3b9a-4e1a-a389-7f5d2f1c8f3e", 
-                Titulo = "Estudar Angular", 
-                CriadoEm = DateTime.Now.AddDays(3), 
-                Status = "Não iniciada",
-                CategoriaId = 2 
+            new Pessoa { 
+                PessoaId = "2f1b7dc1-3b9a-4e1a-a389-7f5d2f1c8f3e", 
+                Nome = "enzo", 
+                DataCriacao = DateTime.Now.AddDays(7)
             },
-            new Tarefa { 
-                TarefaId = "e5d4a7b9-1f9e-4c4a-ae3b-5b7c1a9d2e3f", 
-                Titulo = "Passeio no parque", 
-                CriadoEm = DateTime.Now.AddDays(14), 
-                Status = "Não iniciada",
-                CategoriaId = 3 
+            new Pessoa { 
+                PessoaId = "e5d4a7b9-1f9e-4c4a-ae3b-5b7c1a9d2e3f", 
+                Nome = "fulano", 
+                DataCriacao = DateTime.Now.AddDays(7)
             }
         );
     }
