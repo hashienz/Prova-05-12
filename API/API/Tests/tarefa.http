@@ -1,0 +1,22 @@
+### Listar todas as tarefas
+GET http://localhost:5000/api/tarefas/listar
+
+### Cadastrar uma nova tarefa (Status nasce como "Não iniciada" automático)
+POST http://localhost:5000/api/tarefas/cadastrar
+Content-Type: application/json
+
+{
+    "titulo": "Estudar para a Prova Final",
+    "descricao": "Focar em CRUD e React"
+}
+
+### Listar Tarefas Concluidas
+GET http://localhost:5000/api/tarefas/concluidas
+
+### Listar Tarefas Nao concluidas (Não iniciada + Em andamento)
+GET http://localhost:5000/api/tarefas/naoconcluidas
+
+### Alterar tarefa (Avançar Status) - SUBSTITUA O {id} PELO ID REAL
+# Exemplo: Se o ID gerado for "uuid-1234", use a URL abaixo:
+# Lembre-se: Cada vez que você envia, o status muda (Não iniciada -> Em andamento -> Concluída)
+PATCH http://localhost:5000/api/tarefas/alterar/f81d9248-98f3-4a86-a353-18f85d0ce89b
